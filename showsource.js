@@ -176,4 +176,4 @@
         beautify: beautify,
         init: init
     };
-})(window, documen);
+})(window, document);

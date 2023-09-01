@@ -3,8 +3,8 @@ UGLIFY_FLAGS_MIN := $(if $(UGLIFY_FLAGS_MIN),$(UGLIFY_FLAGS_MIN),-m)
 build:
 
 ifneq ("","$(wildcard js/*.js)")
-	uglifyjs -e window,document:window,documen js/*.js $(UGLIFY_FLAGS) -b | cat notice - > $(current_dir).js
-	uglifyjs -e window,document:window,documen js/*.js $(UGLIFY_FLAGS_MIN)| cat notice.min - > $(current_dir).min.js
+	uglifyjs -e window,document:window,document js/*.js $(UGLIFY_FLAGS) -b | cat notice - > $(current_dir).js
+	uglifyjs -e window,document:window,document js/*.js $(UGLIFY_FLAGS_MIN) | cat notice.min - > $(current_dir).min.js
 endif
 ifneq ("","$(wildcard css/*.css)")
 	cleancss css/*.css --format beautify | cat notice - > $(current_dir).css
