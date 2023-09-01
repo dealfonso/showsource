@@ -22,7 +22,9 @@
     SOFTWARE.
 */
 
-defaultOptions = {
+'use strict';
+
+let defaultOptions = {
     // The indentation to be used (the spaces at the beginning of the line) (inheritable)
     indentation: "  ",
     // Remove the children of these types of elements
@@ -109,7 +111,7 @@ function beautify(el, userOptions = {}, indent = "") {
         if (typeof options.removeAttributes === "string") {
             removeAttributes = options.removeAttributes.split(" ");
         }
-        for (attribute of el.attributes) {
+        for (let attribute of el.attributes) {
             if (attribute.name.startsWith("data-showsource")) {
                 if (options.hidePlugin) {
                     continue;
@@ -164,7 +166,7 @@ function beautify(el, userOptions = {}, indent = "") {
             beautifulElement[beautifulElement.length - 1] += ">";
         }
         if (!options.skipChildren) {
-            for (child of el.childNodes) {
+            for (let child of el.childNodes) {
                 if (child.nodeType == Node.TEXT_NODE) {
                     let text = child.textContent.trim();
                     if (text !== "") {

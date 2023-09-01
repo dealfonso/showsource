@@ -23,7 +23,8 @@
 */
 
 (function(window, document) {
-    defaultOptions = {
+    "use strict";
+    let defaultOptions = {
         indentation: "  ",
         remove: "h1 h2 h3 h4 h5 h6 p",
         hide: false,
@@ -78,7 +79,7 @@
             if (typeof options.removeAttributes === "string") {
                 removeAttributes = options.removeAttributes.split(" ");
             }
-            for (attribute of el.attributes) {
+            for (let attribute of el.attributes) {
                 if (attribute.name.startsWith("data-showsource")) {
                     if (options.hidePlugin) {
                         continue;
@@ -126,7 +127,7 @@
                 beautifulElement[beautifulElement.length - 1] += ">";
             }
             if (!options.skipChildren) {
-                for (child of el.childNodes) {
+                for (let child of el.childNodes) {
                     if (child.nodeType == Node.TEXT_NODE) {
                         let text = child.textContent.trim();
                         if (text !== "") {
