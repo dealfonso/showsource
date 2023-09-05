@@ -30,7 +30,7 @@ Once generated, we can use the library [highlightjs](https://highlightjs.org/) t
 The library is available in the form of a CDN, so we can include it in our HTML document as follows:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/dealfonso/showsource@1.0/showsource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dealfonso/showsource@1/showsource.min.js"></script>
 ```
 
 The library will discover any element with the `data-showsource` attribute and will add the source code of the element after it.
