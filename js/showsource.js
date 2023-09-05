@@ -40,7 +40,13 @@ let defaultOptions = {
     // The attributes to be removed from the element
     removeAttributes: null,
     // The class attribute to add to the main container div
-    class: "showsource"
+    class: "showsource",
+    // Tag length limit
+    tagLengthLimit: 100,
+    // Max attributes in a row
+    maxAttributesInRow: 3,
+    // Separate these elements in a new line
+    separateElements: "data-*",
 };
 
 /**
@@ -106,11 +112,23 @@ function beautify(el, userOptions = {}, indent = "") {
     if (!options.hide) {
         beautifulElement.push(indent + "<" + el.tagName.toLowerCase());
         // We'll add the attributes to the tag, but after each "data-" attribute, we'll add a new line
-        let isData = false;
         let removeAttributes = [];
         if (typeof options.removeAttributes === "string") {
             removeAttributes = options.removeAttributes.split(" ");
         }
+
+        let separateRegex = [];
+        if (typeof options.separateElements === "string") {
+            let separateElements = options.separateElements.split(" ");
+            for (let separateElement of separateElements) {
+                // Convert the element to a regular expression
+                separateElement = separateElement.replace(/\*/g, ".*");
+                separateRegex.push(new RegExp(separateElement));
+            }
+        }
+
+        let attributesInRow = 0;
+        let separatingRegex = null;
         for (let attribute of el.attributes) {
             if (attribute.name.startsWith("data-showsource")) {
                 if (options.hidePlugin) {
@@ -120,12 +138,48 @@ function beautify(el, userOptions = {}, indent = "") {
             if (removeAttributes.includes(attribute.name)) {
                 continue;
             }
-            if (attribute.name.startsWith("data-") || isData) {
-                beautifulElement.push("  " + indent + attribute.name + '="' + attribute.value + '"');
-            } else {
-                beautifulElement[beautifulElement.length - 1] += " " + attribute.name + '="' + attribute.value + '"';
+
+            let attributeString = `${attribute.name}="${attribute.value}"`;
+
+            let matchRegex = null;
+            if (separateRegex.length > 0) {
+                for (let regex of separateRegex) {
+                    if (regex.test(attribute.name)) {
+                        matchRegex = regex;
+                        break;
+                    }
+                }
             }
-            isData = attribute.name.startsWith("data-");
+
+            if (matchRegex !== null) {
+                // Have to separate the element
+                beautifulElement.push(" " + indent + attributeString);
+                attributesInRow = 1;
+                separatingRegex = matchRegex;
+                continue;
+            }
+
+            if (separatingRegex !== null) {
+                beautifulElement.push(" " + indent + attributeString);
+                attributesInRow = 1;
+                separatingRegex = null;
+                continue;
+            }
+
+            if (attributesInRow >= options.maxAttributesInRow) {
+                beautifulElement.push(" " + indent + attributeString);
+                attributesInRow = 1;
+                continue;
+            } 
+
+            if ((attributeString.length + beautifulElement[beautifulElement.length - 1].length)> options.tagLengthLimit) {
+                beautifulElement.push(" " + indent + attributeString);
+                attributesInRow = 1;
+                continue;
+            } 
+            beautifulElement[beautifulElement.length - 1] += " " + attributeString;
+            attributesInRow++;
+            // isData = attribute.name.startsWith("data-");
         }
     }
 
@@ -223,5 +277,6 @@ if (document.addEventListener) {
 
 window.showsource = {
     beautify: beautify,
-    init: init
+    init: init,
+    version: "1.1.0"
 }
