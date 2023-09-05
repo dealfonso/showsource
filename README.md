@@ -91,7 +91,13 @@ hidePlugin: true,
 // The attributes to be removed from the element
 removeAttributes: null,
 // The class attribute to add to the main container div
-class: "showsource"
+class: "showsource",
+// Number of characters to break the line of the tag (inheritable)
+tagLineBreak: null,
+// Max attributes number of consecutive attributes that may appear in a line (inheritable)
+maxAttributesPerLine: null,
+// Space separated regular expressions that make that one attribute whose start matches any of them is rendered in a single line (i.e. no other attribute is rendered in the same line); e.g. if the value is data-* then all the attributes starting with data- will be rendered in a single line (inheritable)
+separateElements: null,
 }
 ```
 
@@ -106,3 +112,14 @@ The possible options are:
 - `data-showsource-hide-plugin` instructs the library to hide the attributes related to this plugin (i.e. the `data-showsource-*` attributes). The default value is `true`. This attribute is inheritable to the children.
 - `data-showsource-remove-attributes` is a space separated list of the attributes to be hidden from the element. The default value is `null`.
 - `data-showsource-class` is a space separated list of classes to add to the main container div. The default value is `showsource`.
+- `data-showsource-tag-line-break` is the number of characters to break the line of the tag. The default value is `null` (i.e. deactivated). This attribute is inheritable to the children.
+- `data-showsource-max-attributes-per-line` is the max number of consecutive attributes that may appear in a line. The default value is `null` (i.e. deactivated). This attribute is inheritable to the children.
+- `data-showsource-separate-elements` is a space separated list of regular expressions that makes that one attribute that starts matching any of them is rendered in a single line with no other attribute in the same line; e.g. if the value is `data-*` then all the attributes starting with `data-` will be rendered in a single line. The default value is `null` (i.e. deactivated). This attribute is inheritable to the children.
+
+### Default options
+
+The default options can be changed by modifying the `showsource.defaults` object. For example, to change the default indentation to four spaces, we can do the following after including the library:
+
+```javascript
+showsource.defaults.indentation = "    ";
+```

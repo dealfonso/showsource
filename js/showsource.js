@@ -42,11 +42,11 @@ let defaultOptions = {
     // The class attribute to add to the main container div
     class: "showsource",
     // Tag length limit
-    tagLengthLimit: 100,
+    tagLineBreak: null,
     // Max attributes in a row
-    maxAttributesInRow: 3,
+    maxAttributesPerLine: null,
     // Separate these elements in a new line
-    separateElements: "data-*",
+    separateElements: null,
 };
 
 /**
@@ -82,7 +82,19 @@ function beautify(el, userOptions = {}, indent = "") {
         elOptions.hidePlugin = el.dataset.showsourceHidePlugin.toLowerCase() != "false";
     }
 
-    let options = Object.assign({}, defaultOptions, elOptions, userOptions);
+    if (el.dataset.showsourceTagLineBreak != undefined) {
+        elOptions.tagLineBreak = parseInt(el.dataset.showsourceTagLineBreak);
+    }
+
+    if (el.dataset.showsourceMaxAttributesPerLine != undefined) {
+        elOptions.maxAttributesPerLine = parseInt(el.dataset.showsourceMaxAttributesPerLine);
+    }
+
+    if (el.dataset.showsourceSeparateElements != undefined) {
+        elOptions.separateElements = el.dataset.showsourceSeparateElements;
+    }
+
+    let options = Object.assign({}, defaultOptions, window.showsource.defaults, elOptions, userOptions);
 
     if (options.skip) {
         return [];
@@ -94,7 +106,10 @@ function beautify(el, userOptions = {}, indent = "") {
     // The inherited options will be passed to the children
     let childOptions = Object.assign({}, userOptions, {
         indentation: options.indentation,
-        hidePlugin: options.hidePlugin
+        hidePlugin: options.hidePlugin,
+        tagLineBreak: options.tagLineBreak,
+        maxAttributesPerLine: options.maxAttributesPerLine,
+        separateElements: options.separateElements
     });
 
     if (typeof options.remove === "string") {
@@ -166,20 +181,19 @@ function beautify(el, userOptions = {}, indent = "") {
                 continue;
             }
 
-            if (attributesInRow >= options.maxAttributesInRow) {
+            if ((options.maxAttributesPerLine !== null) && (attributesInRow >= options.maxAttributesPerLine)) {
                 beautifulElement.push(" " + indent + attributeString);
                 attributesInRow = 1;
                 continue;
             } 
 
-            if ((attributeString.length + beautifulElement[beautifulElement.length - 1].length)> options.tagLengthLimit) {
+            if ((options.tagLineBreak !== null) && ((attributeString.length + beautifulElement[beautifulElement.length - 1].length)> options.tagLineBreak)) {
                 beautifulElement.push(" " + indent + attributeString);
                 attributesInRow = 1;
                 continue;
             } 
             beautifulElement[beautifulElement.length - 1] += " " + attributeString;
             attributesInRow++;
-            // isData = attribute.name.startsWith("data-");
         }
     }
 
@@ -276,7 +290,8 @@ if (document.addEventListener) {
 }
 
 window.showsource = {
+    defaults: Object.assign({}, defaultOptions),
     beautify: beautify,
     init: init,
-    version: "1.1.0"
+    version: "1.1.1"
 }
