@@ -33,9 +33,9 @@
         hidePlugin: true,
         removeAttributes: null,
         class: "showsource",
-        tagLengthLimit: 100,
-        maxAttributesInRow: 3,
-        separateElements: "data-*"
+        tagLineBreak: null,
+        maxAttributesPerLine: null,
+        separateElements: null
     };
     function beautify(el, userOptions = {}, indent = "") {
         let elOptions = {};
@@ -57,14 +57,26 @@
         if (el.dataset.showsourceHidePlugin !== undefined) {
             elOptions.hidePlugin = el.dataset.showsourceHidePlugin.toLowerCase() != "false";
         }
-        let options = Object.assign({}, defaultOptions, elOptions, userOptions);
+        if (el.dataset.showsourceTagLineBreak != undefined) {
+            elOptions.tagLineBreak = parseInt(el.dataset.showsourceTagLineBreak);
+        }
+        if (el.dataset.showsourceMaxAttributesPerLine != undefined) {
+            elOptions.maxAttributesPerLine = parseInt(el.dataset.showsourceMaxAttributesPerLine);
+        }
+        if (el.dataset.showsourceSeparateElements != undefined) {
+            elOptions.separateElements = el.dataset.showsourceSeparateElements;
+        }
+        let options = Object.assign({}, defaultOptions, window.showsource.defaults, elOptions, userOptions);
         if (options.skip) {
             return [];
         }
         el = el.cloneNode(true);
         let childOptions = Object.assign({}, userOptions, {
             indentation: options.indentation,
-            hidePlugin: options.hidePlugin
+            hidePlugin: options.hidePlugin,
+            tagLineBreak: options.tagLineBreak,
+            maxAttributesPerLine: options.maxAttributesPerLine,
+            separateElements: options.separateElements
         });
         if (typeof options.remove === "string") {
             let elementsRemove = options.remove.split(" ").join(",");
@@ -122,12 +134,12 @@
                     separatingRegex = null;
                     continue;
                 }
-                if (attributesInRow >= options.maxAttributesInRow) {
+                if (options.maxAttributesPerLine !== null && attributesInRow >= options.maxAttributesPerLine) {
                     beautifulElement.push(" " + indent + attributeString);
                     attributesInRow = 1;
                     continue;
                 }
-                if (attributeString.length + beautifulElement[beautifulElement.length - 1].length > options.tagLengthLimit) {
+                if (options.tagLineBreak !== null && attributeString.length + beautifulElement[beautifulElement.length - 1].length > options.tagLineBreak) {
                     beautifulElement.push(" " + indent + attributeString);
                     attributesInRow = 1;
                     continue;
@@ -214,8 +226,9 @@
         });
     }
     window.showsource = {
+        defaults: Object.assign({}, defaultOptions),
         beautify: beautify,
         init: init,
-        version: "1.1.0"
+        version: "1.1.1"
     };
 })(window, document);
