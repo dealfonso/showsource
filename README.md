@@ -53,7 +53,7 @@ The library can be used in a declarative way, by adding the `data-showsource` at
 It is also possible to use the library from Javascript. So, we can use it to extract the HTML code from an element in a beautiful format (i.e. with indentation and line breaks). Then we can use the result to show it in a dialog, or to add it to the document in a different way.
 
 The library will be available in the global variable `showsource` with the following methods:
-- `showsource.beautify(el, userOptions = {}, indent = "")` - returns a list of strings with the HTML source code of the element `el` and its children. The `userOptions` parameter is optional and allows to customize the behavior of the function. The `indent` parameter is optional and is used to indent the source code.
+- `showsource.extract(el, userOptions = {}, indent = "")` - returns a list of strings with the HTML source code of the element `el` and its children. The `userOptions` parameter is optional and allows to customize the behavior of the function. The `indent` parameter is optional and is used to indent the source code.
 
 - `showsource.init()` - discovers any element with the `data-showsource` attribute and adds the source code of the element after it. The function returns the list of elements that have been processed.
 
@@ -64,7 +64,7 @@ An example of usage is shown below:
 ```javascript
 // get the element that we want to extract the html content
 const el = document.querySelector(".example");
-let lines = showsource.beautify(el);
+let lines = showsource.extract(el);
 
 // add the source code to the document
 el.insertAdjacentHTML("afterend", `<pre><code>${lines.join("\n")}</code></pre>`);
@@ -72,7 +72,7 @@ el.insertAdjacentHTML("afterend", `<pre><code>${lines.join("\n")}</code></pre>`)
 
 ### Options
 
-The `showsource.beautify` method accepts an optional `userOptions` parameter that allows to customize the behavior of the function. The following options are available:
+The `showsource.extract` method accepts an optional `userOptions` parameter that allows to customize the behavior of the function. The following options are available:
 
 ```javascript
 {

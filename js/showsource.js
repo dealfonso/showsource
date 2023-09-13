@@ -55,7 +55,7 @@ let defaultOptions = {
  * @param {*} indent, the indentation to be used (the spaces at the beginning of the line)
  * @returns 
  */
-function beautify(el, userOptions = {}, indent = "") {
+function extractCode(el, userOptions = {}, indent = "") {
 
     let elOptions = {};
     if (el.dataset.showsourceIndentation !== undefined) {
@@ -241,7 +241,7 @@ function beautify(el, userOptions = {}, indent = "") {
                         beautifulElement.push(indent + options.indentation + text);
                     }
                 } else {
-                    let beautifulChild = beautify(child, childOptions, indent + (options.hide?"":options.indentation));
+                    let beautifulChild = extractCode(child, childOptions, indent + (options.hide?"":options.indentation));
                     beautifulElement = beautifulElement.concat(beautifulChild);
                 }
             }
@@ -271,7 +271,7 @@ function init() {
         let container = document.createElement("div");
         let pre = document.createElement("pre");
         let code = document.createElement("code");
-        code.textContent = beautify(el).join("\n");
+        code.textContent = extractCode(el).join("\n");
         pre.appendChild(code);
         container.appendChild(pre);
 
@@ -291,7 +291,7 @@ if (document.addEventListener) {
 
 window.showsource = {
     defaults: Object.assign({}, defaultOptions),
-    beautify: beautify,
+    extract: extractCode,
     init: init,
     version: "1.1.1"
 }
