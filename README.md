@@ -55,9 +55,9 @@ It is also possible to use the library from Javascript. So, we can use it to ext
 The library will be available in the global variable `showsource` with the following methods:
 - `showsource.extract(el, userOptions = {}, indent = "")` - returns a list of strings with the HTML source code of the element `el` and its children. The `userOptions` parameter is optional and allows to customize the behavior of the function. The `indent` parameter is optional and is used to indent the source code.
 
-- `showsource.init()` - discovers any element with the `data-showsource` attribute and adds the source code of the element after it. The function returns the list of elements that have been processed.
+- `showsource.show(selector="div[data-showsource]")` - discovers any element with the given selector and adds the source code of the element in a div, after it. The function returns the list of elements that have been processed.
 
-    This method is called automatically when the library is loaded, but it can be called again if we add new elements with the `data-showsource` attribute.
+    This method is called automatically when the library is loaded, but it can be called again if we add new elements or if we want othe type of elements (e.g. `showsource.show("div.example")`).
 
 An example of usage is shown below:
 
