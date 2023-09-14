@@ -298,8 +298,8 @@ function extractCode(el, userOptions = {}, indent = "") {
     return beautifulElement;
 }
 
-function init() {
-    document.querySelectorAll("div[data-showsource]").forEach(function (el) {
+function showCode(selector = "div[data-showsource]") {
+    document.querySelectorAll(selector).forEach(function (el) {
 
         let classString = defaultOptions.class;
         if (el.dataset.showsourceClass !== undefined) {
@@ -327,13 +327,13 @@ function init() {
 
 if (document.addEventListener) {
     document.addEventListener("DOMContentLoaded", function () {
-        init();
+        showCode();
     });
 }
 
 window.showsource = {
     defaults: Object.assign({}, defaultOptions),
     extract: extractCode,
-    init: init,
-    version: "1.2.0"
+    show: showCode,
+    version: "1.2.1"
 }
