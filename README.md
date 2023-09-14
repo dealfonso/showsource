@@ -76,28 +76,32 @@ The `showsource.extract` method accepts an optional `userOptions` parameter that
 
 ```javascript
 {
-// The indentation to be used (the spaces at the beginning of the line) (inheritable)
+// The indentation to be used (the spaces at the beginning of the line)
 indentation: "  ",
-// Remove the children of these types of elements
-remove: "h1 h2 h3 h4 h5 h6 p",
-// Hide the element (i.e. the tag) itself, but not its children
+// Hide this element (does not affect to its children); data-showsource-hide or data-showsource-hide="true" to hide the element
 hide: false,
-// Skip the element, along with its children
-skip: false,
-// Skip the children of the element, but not the element itself
+// Hide these elements (i.e. the tag)  (does not affect to its children). The syntax is as in querySelector; data-showsource-hide-selector="h1,h2,h3,h4,h5,h6,p" to hide the child elements that match these selectors
+hideSelector: null,
+// Add to hide list (not overwrite the list) (*) created to be used in the declarative version in the data-showsource-hide-elements-add; has no sense in the programmatic version (not inherited)
+hideSelectorAdd: null,
+// Skip these elements (along with its children). The syntax is as in querySelector; data-showsource-skip-selector="h1,h2,h3,h4,h5,h6,p" to skip the element that match these selectors
+skipSelector: null,
+// Add to skipSelector list (not overwrite the list) (*) created to be used in the declarative version in the data-showsource-skip-selector-add; has no sense in the programmatic version (not inherited)
+skipSelectorAdd: null,
+// Skip the children of the element, but not the element itself; data-showsource-skip-children="true" or simply data-showsource-skip-children to skip the children
 skipChildren: false,
-// Hide the attributes related to this plugin (inheritable)
+// Hide the attributes related to this plugin; data-showsource-hide-plugin="true" or simply data-showsource-hide-plugin to hide the attributes related to this plugin
 hidePlugin: true,
-// The attributes to be removed from the element
+// The attributes to be removed from the element; data-showsource-remove-attributes="class style" to remove these attributes from the element
 removeAttributes: null,
-// The class attribute to add to the main container div
+// The class attribute to add to the main container div; data-showsource-class="showsource myclass" to add the classes "showsource" and "myclass" to the main container div
 class: "showsource",
-// Number of characters to break the line of the tag (inheritable)
+// Number of characters to break the line of the tag; data-showsource-tag-line-break="80" to break the tag in a new line if the tag is longer than 80 characters
 tagLineBreak: null,
-// Max attributes number of consecutive attributes that may appear in a line (inheritable)
+// Max attributes number of consecutive attributes that may appear in a line; data-showsource-max-attributes-per-line="3" to break the attributes in a new line if there are more than 3 attributes in a row
 maxAttributesPerLine: null,
-// Space separated regular expressions that make that one attribute whose start matches any of them is rendered in a single line (i.e. no other attribute is rendered in the same line); e.g. if the value is data-* then all the attributes starting with data- will be rendered in a single line (inheritable)
-separateElements: null,
+// Space separated regular expressions that make that one attribute whose start matches any of them is rendered in a single line (i.e. no other attribute is rendered in the same line); e.g. if the value is data-* then all the attributes starting with data- will be rendered in a single line
+separateElements: null, 
 }
 ```
 
@@ -105,10 +109,13 @@ The options can also be used in the declarative way, by adding the `data-showsou
 
 The possible options are:
 - `data-showsource-indentation` is the indentation to be used (the spaces at the beginning of the line), that will be accumulated when rendering the children. The default value is two spaces, so that the source corresponding to the children of the element will have two extra spaces at the beginning. The value is inheritable to the children.
-- `data-showsource-remove` is a space separated list of html elements (or selectors) to be removed from the element. The default value is `h1 h2 h3 h4 h5 h6 p`.
 - `data-showsource-hide` instructs the library to hide the render of the current element (i.e. the tag) itself, but not its children. The children will be rendered at the level of the current element. The default value is `false`.
+- `data-showsource-hide-selector` instructs the library to hide the render of the elements that match the selector (including the current element). The syntax is the same than using `document.querySelector`. The default value is `null`.
+- `data-showsource-hide-selector-add` is a list to be added to the list of selectors to hide. The syntax is the same than using `document.querySelector`. The default value is `null`. It has no sense in the programmatic version (not inherited).
 - `data-showsource-skip` instructs the library to skip the element, along with its children. The default value is `false`.
-- `data-showsource-skip-children` instruct the library to the children of the element, but not the element itself (unless the `data-showsource-hide` attribute is also present). The default value is `false`.
+- `data-showsource-skip-selector` instructs the library to skip the elements that match the selector, along with its children. The syntax is the same than using `document.querySelector`. The default value is `null`.
+- `data-showsource-skip-selector-add` is a list to be added to the list of selectors to skip. The syntax is the same than using `document.querySelector`. The default value is `null`. It has no sense in the programmatic version (not inherited).
+- `data-showsource-skip-children` instruct the library to the children of the element, but not the element itself. The default value is `false`.
 - `data-showsource-hide-plugin` instructs the library to hide the attributes related to this plugin (i.e. the `data-showsource-*` attributes). The default value is `true`. This attribute is inheritable to the children.
 - `data-showsource-remove-attributes` is a space separated list of the attributes to be hidden from the element. The default value is `null`.
 - `data-showsource-class` is a space separated list of classes to add to the main container div. The default value is `showsource`.
@@ -122,4 +129,10 @@ The default options can be changed by modifying the `showsource.defaults` object
 
 ```javascript
 showsource.defaults.indentation = "    ";
+```
+
+To skip the elements that only add text, when using comments while showing how to use a library, we can do the following:
+
+```javascript
+showsource.defaults.skipSelector = "h1,h2,h3,h4,h5,h6,p";
 ```
