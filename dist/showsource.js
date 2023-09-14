@@ -26,9 +26,12 @@
     "use strict";
     let defaultOptions = {
         indentation: "  ",
-        remove: "h1 h2 h3 h4 h5 h6 p",
         hide: false,
+        hideSelector: null,
+        hideSelectorAdd: null,
         skip: false,
+        skipSelector: null,
+        skipSelectorAdd: null,
         skipChildren: false,
         hidePlugin: true,
         removeAttributes: null,
@@ -37,16 +40,25 @@
         maxAttributesPerLine: null,
         separateElements: null
     };
-    function beautify(el, userOptions = {}, indent = "") {
+    function extractCode(el, userOptions = {}, indent = "") {
         let elOptions = {};
         if (el.dataset.showsourceIndentation !== undefined) {
             elOptions.indentation = el.dataset.showsourceIndentation;
         }
-        if (el.dataset.showsourceRemove !== undefined) {
-            elOptions.remove = el.dataset.showsourceRemove;
+        if (el.dataset.showsourceSkipSelector !== undefined) {
+            elOptions.skipSelector = el.dataset.showsourceSkipSelector;
+        }
+        if (el.dataset.showsourceSkipSelectorAdd !== undefined) {
+            elOptions.skipSelectorAdd = el.dataset.showsourceSkipSelectorAdd;
         }
         if (el.dataset.showsourceHide !== undefined) {
             elOptions.hide = el.dataset.showsourceHide.toLowerCase() != "false";
+        }
+        if (el.dataset.showsourceHideSelector !== undefined) {
+            elOptions.hideSelector = el.dataset.showsourceHideSelector;
+        }
+        if (el.dataset.showsourceHideSelectorAdd !== undefined) {
+            elOptions.hideSelectorAdd = el.dataset.showsourceHideSelectorAdd;
         }
         if (el.dataset.showsourceSkip !== undefined) {
             elOptions.skip = el.dataset.showsourceSkip.toLowerCase() != "false";
@@ -70,23 +82,46 @@
         if (options.skip) {
             return [];
         }
-        el = el.cloneNode(true);
+        if (typeof options.skipSelector === "string") {
+            let elementsSkip = options.skipSelector.split(",").filter(e => e.trim() !== "").join(",");
+            if (elementsSkip.trim() != "") {
+                if (el.matches(elementsSkip)) {
+                    return [];
+                }
+            }
+        }
+        if (typeof options.skipSelectorAdd === "string") {
+            if (options.skipSelector === undefined || options.skipSelector === null) {
+                options.skipSelector = options.skipSelectorAdd;
+            } else {
+                options.skipSelector += ", " + options.skipSelectorAdd;
+            }
+        }
+        if (typeof options.hideSelectorAdd === "string") {
+            if (options.hideSelector === undefined || options.hideSelector === null) {
+                options.hideSelector = options.hideSelectorAdd;
+            } else {
+                options.hideSelector += "," + options.hideSelectorAdd;
+            }
+        }
         let childOptions = Object.assign({}, userOptions, {
             indentation: options.indentation,
             hidePlugin: options.hidePlugin,
             tagLineBreak: options.tagLineBreak,
             maxAttributesPerLine: options.maxAttributesPerLine,
-            separateElements: options.separateElements
+            separateElements: options.separateElements,
+            skipSelector: options.skipSelector,
+            hideSelector: options.hideSelector
         });
-        if (typeof options.remove === "string") {
-            let elementsRemove = options.remove.split(" ").join(",");
-            if (elementsRemove.trim() != "") {
-                el.querySelectorAll(elementsRemove).forEach(function(e) {
-                    e.remove();
-                });
+        let beautifulElement = [];
+        if (!options.hide) {
+            if (typeof options.hideSelector === "string") {
+                let elementsHide = options.hideSelector.split(",").filter(x => x.trim() !== "").join(",");
+                if (elementsHide.trim() != "") {
+                    options.hide = el.matches(elementsHide);
+                }
             }
         }
-        let beautifulElement = [];
         if (!options.hide) {
             beautifulElement.push(indent + "<" + el.tagName.toLowerCase());
             let removeAttributes = [];
@@ -164,7 +199,7 @@
                         lines.pop();
                     }
                     beautifulElement.push(lines.join("\n"));
-                    beautifulElement.push("</" + el.tagName.toLowerCase() + ">");
+                    beautifulElement.push(indent + "</" + el.tagName.toLowerCase() + ">");
                 } else {
                     if (beautifulElement.length > 1) {
                         beautifulElement[beautifulElement.length - 1] += ">" + el.innerHTML.trim();
@@ -186,7 +221,7 @@
                             beautifulElement.push(indent + options.indentation + text);
                         }
                     } else {
-                        let beautifulChild = beautify(child, childOptions, indent + (options.hide ? "" : options.indentation));
+                        let beautifulChild = extractCode(child, childOptions, indent + (options.hide ? "" : options.indentation));
                         beautifulElement = beautifulElement.concat(beautifulChild);
                     }
                 }
@@ -195,7 +230,6 @@
                 beautifulElement.push(indent + "</" + el.tagName.toLowerCase() + ">");
             }
         }
-        el.remove();
         return beautifulElement;
     }
     function init() {
@@ -211,7 +245,7 @@
             let container = document.createElement("div");
             let pre = document.createElement("pre");
             let code = document.createElement("code");
-            code.textContent = beautify(el).join("\n");
+            code.textContent = extractCode(el).join("\n");
             pre.appendChild(code);
             container.appendChild(pre);
             classString.split(" ").forEach(function(c) {
@@ -227,8 +261,8 @@
     }
     window.showsource = {
         defaults: Object.assign({}, defaultOptions),
-        beautify: beautify,
+        extract: extractCode,
         init: init,
-        version: "1.1.1"
+        version: "1.2.0"
     };
 })(window, document);

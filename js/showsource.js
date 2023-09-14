@@ -25,27 +25,33 @@
 'use strict';
 
 let defaultOptions = {
-    // The indentation to be used (the spaces at the beginning of the line) (inheritable)
+    // The indentation to be used (the spaces at the beginning of the line)
     indentation: "  ",
-    // Remove the children of these types of elements
-    remove: "h1 h2 h3 h4 h5 h6 p",
-    // Hide the element (i.e. the tag) itself, but not its children
+    // Hide this element (does not affect to its children); data-showsource-hide or data-showsource-hide="true" to hide the element
     hide: false,
-    // Skip the element, along with its children
+    // Hide these elements (i.e. the tag) itself (does not affect to its children). The syntax is as in querySelector; data-showsource-hide-selector="h1,h2,h3,h4,h5,h6,p" to hide the child elements that match these selectors
+    hideSelector: null,
+    // Add to hide list (not overwrite the list) (*) created to be used in the declarative version in the data-showsource-hide-elements-add; has no sense in the programmatic version (not inherited)
+    hideSelectorAdd: null,
+    // Skip the current element, along with its children; data-showsource-skip or data-showsource-skip="true" to skip the element (not inherited)
     skip: false,
-    // Skip the children of the element, but not the element itself
+    // Skip these elements (along with its children). The syntax is as in querySelector; data-showsource-skip-selector="h1,h2,h3,h4,h5,h6,p" to skip the element that match these selectors
+    skipSelector: null,
+    // Add to skipSelector list (not overwrite the list) (*) created to be used in the declarative version in the data-showsource-skip-selector-add; has no sense in the programmatic version (not inherited)
+    skipSelectorAdd: null,
+    // Skip the children of the element, but not the element itself; data-showsource-skip-children="true" or simply data-showsource-skip-children to skip the children
     skipChildren: false,
-    // Hide the attributes related to this plugin (inheritable)
+    // Hide the attributes related to this plugin; data-showsource-hide-plugin="true" or simply data-showsource-hide-plugin to hide the attributes related to this plugin
     hidePlugin: true,
-    // The attributes to be removed from the element
+    // The attributes to be removed from the element; data-showsource-remove-attributes="class style" to remove these attributes from the element
     removeAttributes: null,
-    // The class attribute to add to the main container div
+    // The class attribute to add to the main container div; data-showsource-class="showsource myclass" to add the classes "showsource" and "myclass" to the main container div
     class: "showsource",
-    // Tag length limit
+    // Tag length limit; data-showsource-tag-line-break="80" to break the tag in a new line if the tag is longer than 80 characters
     tagLineBreak: null,
-    // Max attributes in a row
+    // Max attributes in a row; data-showsource-max-attributes-per-line="3" to break the attributes in a new line if there are more than 3 attributes in a row
     maxAttributesPerLine: null,
-    // Separate these elements in a new line
+    // Separate these elements in a new line; data-showsource-separate-elements="div p" to separate the elements that match each regex in a new line (space separated)
     separateElements: null,
 };
 
@@ -62,12 +68,24 @@ function extractCode(el, userOptions = {}, indent = "") {
         elOptions.indentation = el.dataset.showsourceIndentation;
     }
 
-    if (el.dataset.showsourceRemove !== undefined) {
-        elOptions.remove = el.dataset.showsourceRemove;
+    if (el.dataset.showsourceSkipSelector !== undefined) {
+        elOptions.skipSelector = el.dataset.showsourceSkipSelector;
+    }
+
+    if (el.dataset.showsourceSkipSelectorAdd !== undefined) {
+        elOptions.skipSelectorAdd = el.dataset.showsourceSkipSelectorAdd;
     }
 
     if (el.dataset.showsourceHide !== undefined) {
         elOptions.hide = el.dataset.showsourceHide.toLowerCase() != "false";
+    }
+
+    if (el.dataset.showsourceHideSelector !== undefined) {
+        elOptions.hideSelector = el.dataset.showsourceHideSelector;
+    }
+
+    if (el.dataset.showsourceHideSelectorAdd !== undefined) {
+        elOptions.hideSelectorAdd = el.dataset.showsourceHideSelectorAdd;
     }
 
     if (el.dataset.showsourceSkip !== undefined) {
@@ -100,8 +118,32 @@ function extractCode(el, userOptions = {}, indent = "") {
         return [];
     }
 
-    // We are cloning the element, so that we can remove it from the DOM, without affecting the original element
-    el = el.cloneNode(true);
+    if (typeof options.skipSelector === "string") {
+        // We'll remove the elements that the user wants to remove
+        let elementsSkip = options.skipSelector.split(",").filter(e => e.trim() !== "").join(",");
+        if (elementsSkip.trim() != "") {
+            if (el.matches(elementsSkip)) {
+                return [];
+            }
+        }
+    }
+
+    if (typeof options.skipSelectorAdd === "string") {
+        if ((options.skipSelector === undefined) || (options.skipSelector === null)) {
+            options.skipSelector = options.skipSelectorAdd;
+        }
+        else {
+            options.skipSelector += ", " + options.skipSelectorAdd;
+        }
+    }
+
+    if (typeof options.hideSelectorAdd === "string") {
+        if ((options.hideSelector === undefined) || (options.hideSelector === null)) {
+            options.hideSelector = options.hideSelectorAdd;
+        } else {
+            options.hideSelector += "," + options.hideSelectorAdd;
+        }
+    }
 
     // The inherited options will be passed to the children
     let childOptions = Object.assign({}, userOptions, {
@@ -109,20 +151,22 @@ function extractCode(el, userOptions = {}, indent = "") {
         hidePlugin: options.hidePlugin,
         tagLineBreak: options.tagLineBreak,
         maxAttributesPerLine: options.maxAttributesPerLine,
-        separateElements: options.separateElements
+        separateElements: options.separateElements,
+        skipSelector: options.skipSelector,
+        hideSelector: options.hideSelector,
     });
 
-    if (typeof options.remove === "string") {
-        // We'll remove the elements that the user wants to remove
-        let elementsRemove = options.remove.split(" ").join(",");
-        if (elementsRemove.trim() != "") {
-            el.querySelectorAll(elementsRemove).forEach(function (e) {
-                e.remove();
-            });
+    let beautifulElement = [];
+
+    if (! options.hide) {
+        if (typeof options.hideSelector === "string") {
+            // We'll remove the elements that the user wants to remove
+            let elementsHide = options.hideSelector.split(",").filter( x => x.trim() !== "").join(",");
+            if (elementsHide.trim() != "") {
+                options.hide = el.matches(elementsHide);
+            }
         }
     }
-
-    let beautifulElement = [];
 
     if (!options.hide) {
         beautifulElement.push(indent + "<" + el.tagName.toLowerCase());
@@ -217,7 +261,7 @@ function extractCode(el, userOptions = {}, indent = "") {
                     lines.pop();
                 }
                 beautifulElement.push(lines.join("\n"));
-                beautifulElement.push("</" + el.tagName.toLowerCase() + ">");
+                beautifulElement.push(indent + "</" + el.tagName.toLowerCase() + ">");
             } else {
                 // If we have separated the tag in multiple lines, we'll add the closing tag in a new line; otherwise, we'll add it in the same line
                 if (beautifulElement.length > 1) {
@@ -251,8 +295,6 @@ function extractCode(el, userOptions = {}, indent = "") {
         }
     }
 
-    // Remove the cloned element from the DOM
-    el.remove();
     return beautifulElement;
 }
 
@@ -293,5 +335,5 @@ window.showsource = {
     defaults: Object.assign({}, defaultOptions),
     extract: extractCode,
     init: init,
-    version: "1.1.1"
+    version: "1.2.0"
 }

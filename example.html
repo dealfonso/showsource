@@ -26,7 +26,6 @@
     <div class="example" data-showsource>
         <h2>Simple example</h2>
         <p><span class="fw-bold">hint:</span> add the <span class="fw-bold">data-showsource</span> attribute to the element that we want to extract the html content and to add the result after it.</p>
-        <p>the default behavior is to hide the root element (in this case, <span class="fw-bold">data-showsource</span>)</p>
         <div class="d-flex">
             <img src="https://picsum.photos/400/200" class="mx-auto">
         </div>
@@ -35,7 +34,6 @@
         <h2>Extended simple example</h2>
         <p>This is almost the same example than before, but we are overridding some default options.
             <ul>
-                <li>For the shake of better reading the examples, the default behavior is to remove tags like <span class="fw-bold">h1, h2, h3, h4, h5, h6, p</span>. In this case we are not hidding them, by overridding <span class="fw-bold">data-showsource-remove</span></li>
                 <li>We want to show the data attributes related to this plugin, so we added <span class="fw-bold">data-showsource-no-hide-plugin</span>.</li>
             </ul>
         </p>
@@ -43,6 +41,13 @@
             <img src="https://picsum.photos/400/200" class="mx-auto">
         </div>
     </div>
+    <div class="example" data-showsource data-showsource-skip-selector="h1,h2,h3,h4,h5,p">
+      <h2>Enhancing readability</h2>
+      <p><span class="fw-bold">hint:</span> to improve readability of some examples, add <span class="fw-bold">data-showsource-skip-selector="h1,h2,h3,h4,h5,p"</span> to remove titles and paragraphs.</p>
+      <div class="d-flex">
+          <img src="https://picsum.photos/400/200" class="mx-auto">
+      </div>
+  </div>
 </body>
   <script src="js/showsource.js"></script>
   <script>
